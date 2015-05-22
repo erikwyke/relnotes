@@ -4,6 +4,7 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
+
     }
 }
 
@@ -25,6 +26,7 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("com.google.guava:guava:18.0")
     testCompile("junit:junit")
 }
 

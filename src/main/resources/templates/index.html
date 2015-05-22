@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>RelNotes</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel='stylesheet' href='components/bootstrap-3.3.4-dist/css/bootstrap.min.css'/>
+</head>
+<body>
+
+<div class="container">
+    <form class="form-horizontal" action="#" th:action="@{/listrepos}" th:object="${repositoryConfiguration}" method="post">
+        <h1>Github</h1>
+        <div class="form-group">
+            <label for="organization">Organization</label>
+            <input th:field="*{organization}" type="text" class="form-control" id="organization" placeholder="Organization"/>
+        </div>
+        <div class="form-group">
+            <label for="githubUsername">Username</label>
+            <input th:field="*{userInfo.githubUsername}" type="text" class="form-control" id="githubUsername" placeholder="Enter github username"/>
+        </div>
+        <div class="form-group">
+            <label for="githubPassword">Password</label>
+            <input th:field="*{userInfo.githubPassword}" type="password" class="form-control" id="githubPassword" placeholder="Password"/>
+        </div>
+        <h1>Jira</h1>
+        <div class="form-group">
+            <label for="jiraUsername">Username</label>
+            <input th:field="*{userInfo.jiraUsername}" type="text" class="form-control" id="jiraUsername" placeholder="Enter Jira username"/>
+        </div>
+        <div class="form-group">
+            <label for="jiraPassword">Password</label>
+            <input th:field="*{userInfo.jiraPassword}" type="password" class="form-control" id="jiraPassword" placeholder="Password"/>
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+</div>
+
+</body>
+</html>

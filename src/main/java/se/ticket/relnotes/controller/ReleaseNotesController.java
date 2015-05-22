@@ -29,11 +29,9 @@ public class ReleaseNotesController {
     @Autowired
     private JiraIssueMatcher jiraIssueMatcher;
 
-    @Autowired
-    private JiraIssueInformationFetcher jiraIssueInformationFetcher;
 
     @RequestMapping("/")
-    public String greeting(@RequestParam(value="name", required=false, defaultValue="World") String name, Model model) {
+    public String index(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Model model) {
         model.addAttribute("name", name);
         model.addAttribute("repositoryConfiguration", releaseNotesConfiguration);
         return "index";

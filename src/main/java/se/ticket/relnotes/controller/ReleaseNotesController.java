@@ -5,14 +5,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import se.ticket.relnotes.domain.ReleaseNotesConfiguration;
 import se.ticket.relnotes.domain.RepositorySelection;
 import se.ticket.relnotes.git.github.domain.Commit;
 import se.ticket.relnotes.git.github.service.GitHubService;
 import se.ticket.relnotes.git.github.domain.Repository;
 import se.ticket.relnotes.jira.domain.JiraIssue;
-import se.ticket.relnotes.jira.service.JiraIssueInformationFetcher;
+import se.ticket.relnotes.jira.service.JiraService;
 import se.ticket.relnotes.jira.service.JiraIssueMatcher;
 import se.ticket.relnotes.jira.domain.Project;
 
@@ -27,12 +26,13 @@ public class ReleaseNotesController {
     private GitHubService gitHubService;
 
     @Autowired
+    private JiraService jiraService;
+
+    @Autowired
     private JiraIssueMatcher jiraIssueMatcher;
 
-
     @RequestMapping("/")
-    public String index(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Model model) {
-        model.addAttribute("name", name);
+    public String start(Model model) {
         model.addAttribute("repositoryConfiguration", releaseNotesConfiguration);
         return "index";
     }
@@ -46,9 +46,15 @@ public class ReleaseNotesController {
            }
         }
         List<Commit> commits = gitHubService.getCommitsForRepositoriesFromDate(selectedRepositories);
-        Map<Project, Collection<JiraIssue>> jiraIssues = jiraIssueMatcher.projectToIssuesFromCommits(commits);
-
-        model.addAttribute("projectToJiraIssues", jiraIssues);
+        Map<Project, Collection<JiraIssue>> projectsToIssues = jiraIssueMatcher.projectToIssuesFromCommits(commits);
+        if(releaseNotesConfiguration.getUserInfo().getJiraUsername()!=null && !releaseNotesConfiguration.getUserInfo().getJiraUsername().isEmpty() )
+        for (Project project : projectsToIssues.keySet()) {
+            Collection<JiraIssue> jiraIssues = projectsToIssues.get(project);
+            for (JiraIssue jiraIssue : jiraIssues) {
+                jiraService.addInformation(jiraIssue);
+            }
+        }
+        model.addAttribute("projectToJiraIssues", projectsToIssues);
         return "shownotes";
     }
 

@@ -5,6 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <!--<link rel='stylesheet' href='components/bootstrap-3.3.4-dist/css/bootstrap.min.css'/>-->
 </head>
+<style>
+    .notClosedStory {
+        color: red;
+    }
+</style>
 <body>
 
 <div class="container">
@@ -12,7 +17,7 @@
         <h1 th:text="${project.key.key}">ABC</h1>
             <li th:each="issue : ${project.value}">
                 <a th:text="'[' + ${issue.key} +']'" th:href="'https://zlatan.atlassian.net/browse/' + ${issue.key}"/>
-                    <span th:text="${issue.summary}"></span>
+                    <span th:text="${issue.summary}" th:class="${issue.status!='Closed'}? notClosedStory"></span>
 
             </li>
     </div>

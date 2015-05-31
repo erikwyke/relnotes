@@ -15,7 +15,7 @@ import java.util.Base64;
 /**
  */
 @Component
-public class JiraIssueInformationFetcher {
+public class JiraService {
     @Autowired
     private ReleaseNotesConfiguration releaseNotesConfiguration;
 
@@ -29,7 +29,7 @@ public class JiraIssueInformationFetcher {
         headers.add("Authorization", "Basic " + base64Creds);
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<String> request = new HttpEntity<String>(headers);
+        HttpEntity<String> request = new HttpEntity<>(headers);
         ResponseEntity<JiraIssuePage> response = restTemplate.exchange("https://zlatan.atlassian.net/rest/api/latest/issue/" + jiraIssue.getKey() +"?fields=status,summary", HttpMethod.GET, request, JiraIssuePage.class);
         JiraIssuePage jip = response.getBody();
 

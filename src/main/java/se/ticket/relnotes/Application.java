@@ -1,4 +1,4 @@
-package se.ticket.relnotes.application;
+package se.ticket.relnotes;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

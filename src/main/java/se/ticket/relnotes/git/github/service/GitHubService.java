@@ -1,5 +1,8 @@
 package se.ticket.relnotes.git.github.service;
 
+import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.service.CommitService;
+import org.eclipse.egit.github.core.service.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,12 +29,13 @@ public class GitHubService {
     public List<Repository> getRepositoriesForOrganization(String organization) {
         HttpEntity<String> request = getStringHttpEntity();
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Repository[]> response = restTemplate.exchange("https://api.github.com/orgs/"+organization+"/repos", HttpMethod.GET, request, Repository[].class);
+        ResponseEntity<Repository[]> response = restTemplate.exchange("https://api.github.com/orgs/" + organization + "/repos", HttpMethod.GET, request, Repository[].class);
         Repository[] body = response.getBody();
         List<Repository> repositories = Arrays.asList(body);
+        // Sort by privaterepos first
+        Collections.sort(repositories, (o1, o2) -> o2.isPrivateRepo().compareTo(o1.isPrivateRepo()));
         return repositories;
     }
-
 
 
     public List<Commit> getCommitsForRepositoriesFromDate(List<Repository> repositories) {
@@ -40,7 +44,52 @@ public class GitHubService {
         List<Commit> allCommits = new ArrayList();
         DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         for (Repository repository : repositories) {
-            ResponseEntity<CommitPage[]> response = restTemplate.exchange(repository.getUrl()+"/commits?since="+df1.format(repository.getFromDate()),HttpMethod.GET, request, CommitPage[].class);
+            ResponseEntity<CommitPage[]> response = restTemplate.exchange(repository.getUrl() + "/commits?since=" + df1.format(repository.getFromDate()), HttpMethod.GET, request, CommitPage[].class);
+            String nextUrl = getNextURL(response);
+            while (nextUrl != null) {
+                response = restTemplate.exchange(nextUrl, HttpMethod.GET, request, CommitPage[].class);
+                nextUrl = getNextURL(response);
+                CommitPage[] body = response.getBody();
+                List<CommitPage> commitPages = Arrays.asList(body);
+                for (CommitPage commitPage : commitPages) {
+                    allCommits.add(commitPage.getCommit());
+                }
+            }
+        }
+        return allCommits;
+    }
+
+    private String getNextURL(ResponseEntity<CommitPage[]> response) {
+        HttpHeaders headers = response.getHeaders();
+        List<String> link = headers.get("Link");
+        Map<String, String> map = new HashMap<>();
+        if (link != null) {
+            String linkHeader = link.get(0);
+            String[] allLinks = linkHeader.split(",");
+            for (String s : allLinks) {
+                String[] urlAndRel = s.split(";");
+                String url = urlAndRel[0];
+                String rel = urlAndRel[1];
+                String replacedAndTrimmedUrl = url.replace("<", "").replace(">", "").trim();
+                String[] split = rel.split("=");
+                String fixedRel = split[1].replace("\"", "").trim();
+                map.put(fixedRel, replacedAndTrimmedUrl);
+            }
+            return map.get("next");
+        }
+        return null;  //To change body of created methods use File | Settings | File Templates.
+    }
+
+    public List<Commit> getCommitsForRepositoriesFromDate2(List<Repository> repositories) {
+        HttpEntity<String> request = getStringHttpEntity();
+        RestTemplate restTemplate = new RestTemplate();
+        List<Commit> allCommits = new ArrayList();
+        DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        for (Repository repository : repositories) {
+            ResponseEntity<CommitPage[]> response = restTemplate.exchange(repository.getUrl() + "/commits?since=" + df1.format(repository.getFromDate()), HttpMethod.GET, request, CommitPage[].class);
+            HttpHeaders headers = response.getHeaders();
+            List<String> link = headers.get("Link");
+            System.out.println(headers);
             CommitPage[] body = response.getBody();
             List<CommitPage> commitPages = Arrays.asList(body);
             for (CommitPage commitPage : commitPages) {

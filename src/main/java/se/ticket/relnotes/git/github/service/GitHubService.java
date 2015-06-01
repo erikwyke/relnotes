@@ -1,9 +1,5 @@
 package se.ticket.relnotes.git.github.service;
 
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.eclipse.egit.github.core.client.GitHubClient;
-import org.eclipse.egit.github.core.service.CommitService;
-import org.eclipse.egit.github.core.service.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

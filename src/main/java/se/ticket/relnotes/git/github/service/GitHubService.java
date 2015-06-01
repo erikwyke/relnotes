@@ -1,5 +1,6 @@
 package se.ticket.relnotes.git.github.service;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.RepositoryService;
@@ -15,6 +16,8 @@ import se.ticket.relnotes.git.github.domain.Commit;
 import se.ticket.relnotes.git.github.domain.CommitPage;
 import se.ticket.relnotes.git.github.domain.Repository;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -26,19 +29,24 @@ public class GitHubService {
     @Autowired
     private ReleaseNotesConfiguration releaseNotesConfiguration;
 
-    public List<Repository> getRepositoriesForOrganization(String organization) {
+    public List<Repository> getRepositoriesForOrganization(String organization) throws UnsupportedEncodingException {
         HttpEntity<String> request = getStringHttpEntity();
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Repository[]> response = restTemplate.exchange("https://api.github.com/orgs/" + organization + "/repos", HttpMethod.GET, request, Repository[].class);
         Repository[] body = response.getBody();
         List<Repository> repositories = Arrays.asList(body);
         // Sort by privaterepos first
-        Collections.sort(repositories, (o1, o2) -> o2.isPrivateRepo().compareTo(o1.isPrivateRepo()));
+        Collections.sort(repositories, new Comparator<Repository>() {
+            @Override
+            public int compare(Repository o1, Repository o2) {
+                return o2.isPrivateRepo().compareTo(o1.isPrivateRepo());
+            }
+        });
         return repositories;
     }
 
 
-    public List<Commit> getCommitsForRepositoriesFromDate(List<Repository> repositories) {
+    public List<Commit> getCommitsForRepositoriesFromDate(List<Repository> repositories) throws UnsupportedEncodingException {
         HttpEntity<String> request = getStringHttpEntity();
         RestTemplate restTemplate = new RestTemplate();
         List<Commit> allCommits = new ArrayList();
@@ -80,29 +88,9 @@ public class GitHubService {
         return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
-    public List<Commit> getCommitsForRepositoriesFromDate2(List<Repository> repositories) {
-        HttpEntity<String> request = getStringHttpEntity();
-        RestTemplate restTemplate = new RestTemplate();
-        List<Commit> allCommits = new ArrayList();
-        DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        for (Repository repository : repositories) {
-            ResponseEntity<CommitPage[]> response = restTemplate.exchange(repository.getUrl() + "/commits?since=" + df1.format(repository.getFromDate()), HttpMethod.GET, request, CommitPage[].class);
-            HttpHeaders headers = response.getHeaders();
-            List<String> link = headers.get("Link");
-            System.out.println(headers);
-            CommitPage[] body = response.getBody();
-            List<CommitPage> commitPages = Arrays.asList(body);
-            for (CommitPage commitPage : commitPages) {
-                allCommits.add(commitPage.getCommit());
-            }
-        }
-        return allCommits;
-    }
-
-    private HttpEntity<String> getStringHttpEntity() {
+    private HttpEntity<String> getStringHttpEntity() throws UnsupportedEncodingException {
         byte[] plainCredsBytes = releaseNotesConfiguration.getUserInfo().getPlainGithubCredentials().getBytes();
-        byte[] base64CredsBytes = Base64.getEncoder().encode(plainCredsBytes);
-        String base64Creds = new String(base64CredsBytes);
+        String base64Creds = DatatypeConverter.printBase64Binary(plainCredsBytes);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + base64Creds);

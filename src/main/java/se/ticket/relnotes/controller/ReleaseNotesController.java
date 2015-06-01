@@ -15,6 +15,7 @@ import se.ticket.relnotes.jira.service.JiraService;
 import se.ticket.relnotes.jira.service.JiraIssueMatcher;
 import se.ticket.relnotes.jira.domain.Project;
 
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Controller
@@ -38,7 +39,7 @@ public class ReleaseNotesController {
     }
 
     @RequestMapping("/selectrepos")
-    public String selectrepos(final RepositorySelection repositorySelection, Model model) {
+    public String selectrepos(final RepositorySelection repositorySelection, Model model) throws UnsupportedEncodingException {
         List<Repository> selectedRepositories = new ArrayList<>();
         for (Repository repository : repositorySelection.getRepositories()) {
            if(repository.isSelected()) {
@@ -61,7 +62,7 @@ public class ReleaseNotesController {
 
     @RequestMapping(value = "/listrepos", method = RequestMethod.POST)
     public String listrepos(final ReleaseNotesConfiguration releaseNotesConfiguration,
-                            Model model) {
+                            Model model) throws UnsupportedEncodingException {
         this.releaseNotesConfiguration.setUserInfo(releaseNotesConfiguration.getUserInfo());
         String organization = releaseNotesConfiguration.getOrganization();
         List<Repository> repositories = gitHubService.getRepositoriesForOrganization(organization);

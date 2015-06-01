@@ -11,7 +11,7 @@ import se.ticket.relnotes.domain.ReleaseNotesConfiguration;
 import se.ticket.relnotes.jira.domain.JiraIssue;
 import se.ticket.relnotes.jira.domain.JiraIssuePage;
 
-import java.util.Base64;
+import javax.xml.bind.DatatypeConverter;
 /**
  */
 @Component
@@ -22,8 +22,7 @@ public class JiraService {
 
     public void addInformation(JiraIssue jiraIssue) {
         byte[] plainCredsBytes = releaseNotesConfiguration.getUserInfo().getPlainJiraCredentials().getBytes();
-        byte[] base64CredsBytes = Base64.getEncoder().encode(plainCredsBytes);
-        String base64Creds = new String(base64CredsBytes);
+        String base64Creds = DatatypeConverter.printBase64Binary(plainCredsBytes);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + base64Creds);

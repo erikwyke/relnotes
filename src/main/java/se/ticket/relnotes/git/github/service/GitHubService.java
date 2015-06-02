@@ -48,10 +48,9 @@ public class GitHubService {
         List<Commit> allCommits = new ArrayList();
         DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         for (Repository repository : repositories) {
-            ResponseEntity<CommitPage[]> response = restTemplate.exchange(repository.getUrl() + "/commits?since=" + df1.format(repository.getFromDate()), HttpMethod.GET, request, CommitPage[].class);
-            String nextUrl = getNextURL(response);
+            String nextUrl = repository.getUrl() + "/commits?since=" + df1.format(repository.getFromDate());
             while (nextUrl != null) {
-                response = restTemplate.exchange(nextUrl, HttpMethod.GET, request, CommitPage[].class);
+                ResponseEntity<CommitPage[]> response = restTemplate.exchange(nextUrl, HttpMethod.GET, request, CommitPage[].class);
                 nextUrl = getNextURL(response);
                 CommitPage[] body = response.getBody();
                 List<CommitPage> commitPages = Arrays.asList(body);

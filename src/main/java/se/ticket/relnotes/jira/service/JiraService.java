@@ -29,10 +29,15 @@ public class JiraService {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>(headers);
-        ResponseEntity<JiraIssuePage> response = restTemplate.exchange("https://zlatan.atlassian.net/rest/api/latest/issue/" + jiraIssue.getKey() +"?fields=status,summary", HttpMethod.GET, request, JiraIssuePage.class);
-        JiraIssuePage jip = response.getBody();
+        try {
+            ResponseEntity<JiraIssuePage> response = restTemplate.exchange("https://zlatan.atlassian.net/rest/api/latest/issue/" + jiraIssue.getKey() +"?fields=status,summary", HttpMethod.GET, request, JiraIssuePage.class);
+            JiraIssuePage jip = response.getBody();
 
-        jiraIssue.setStatus(jip.getFields().getStatus().getName());
-        jiraIssue.setSummary(jip.getFields().getSummary());
+            jiraIssue.setStatus(jip.getFields().getStatus().getName());
+            jiraIssue.setSummary(jip.getFields().getSummary());
+        } catch (Exception e) {
+            System.out.println("Exception " + e.getMessage() + " for " +jiraIssue);
+        }
+
     }
 }

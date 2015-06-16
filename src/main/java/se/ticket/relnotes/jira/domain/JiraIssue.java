@@ -65,7 +65,7 @@ public class JiraIssue implements Comparable<JiraIssue> {
     @Override
     public String toString() {
         return "JiraIssue{" +
-                "project='" + project + '\'' +
+                "project='" + project.toString() + '\'' +
                 ", number=" + number +
                 ", status='" + status + '\'' +
                 ", description='" + summary + '\'' +

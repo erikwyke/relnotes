@@ -18,4 +18,11 @@ public class Project implements Comparable<Project> {
     public String getKey() {
         return key;
     }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "key='" + key + '\'' +
+                '}';
+    }
 }

@@ -7,7 +7,9 @@ import se.ticket.relnotes.git.github.domain.Commit;
 import se.ticket.relnotes.jira.domain.JiraIssue;
 import se.ticket.relnotes.jira.domain.Project;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,11 +23,11 @@ public class JiraIssueMatcher {
         p = Pattern.compile("(\\w+)-(\\d+)(.*)", Pattern.DOTALL);
     }
 
-    private JiraIssue parse(String commitmessage) {
-        Matcher m = p.matcher(commitmessage);
-        if(m.matches()) {
+    JiraIssue parse(String commitmessage) {
+        Matcher m = p.matcher(commitmessage.trim());
+        if (m.matches()) {
             String firstlineOfMessage = m.group(3).split("\n")[0].trim();
-            if(firstlineOfMessage.startsWith("-")) {
+            if (firstlineOfMessage.startsWith("-")) {
                 firstlineOfMessage = firstlineOfMessage.substring(1);
             }
             firstlineOfMessage = " - " + firstlineOfMessage;
@@ -35,13 +37,11 @@ public class JiraIssueMatcher {
     }
 
     public Map<Project, Collection<JiraIssue>> projectToIssuesFromCommits(List<Commit> commits) {
-        Multimap<Project,JiraIssue> proj = TreeMultimap.create();
-        Set<JiraIssue> issues = new HashSet<>();
+        Multimap<Project, JiraIssue> proj = TreeMultimap.create();
         for (Commit commit : commits) {
             JiraIssue jiraIssue = parse(commit.getMessage());
-            if(jiraIssue!=null){
-                issues.add(jiraIssue);
-                proj.put(jiraIssue.getProject(),jiraIssue);
+            if (jiraIssue != null) {
+                proj.put(jiraIssue.getProject(), jiraIssue);
             }
         }
         return proj.asMap();

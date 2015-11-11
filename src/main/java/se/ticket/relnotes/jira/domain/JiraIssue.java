@@ -1,5 +1,11 @@
 package se.ticket.relnotes.jira.domain;
 
+import se.ticket.relnotes.git.github.domain.Commit;
+import se.ticket.relnotes.git.github.domain.Repository;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  */
 public class JiraIssue implements Comparable<JiraIssue> {
@@ -7,11 +13,15 @@ public class JiraIssue implements Comparable<JiraIssue> {
     private final Integer number;
     private String status;
     private String summary;
+    private Set<Repository> repositories;
+    private Set<Commit> commits;
 
     public JiraIssue(String key, Integer number, String summary) {
         this.project = new Project(key);
         this.number = number;
         this.summary=summary;
+        this.repositories = new HashSet<>();
+        this.commits = new HashSet<>();
     }
 
     public Project getProject() {
@@ -40,6 +50,14 @@ public class JiraIssue implements Comparable<JiraIssue> {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public void addRepository(Repository repository) {
+        repositories.add(repository);
+    }
+
+    public void addCommit(Commit commit) {
+        commits.add(commit);
     }
 
     @Override

@@ -23,7 +23,6 @@ public class JiraService {
     public void addInformation(JiraIssue jiraIssue) {
         byte[] plainCredsBytes = releaseNotesConfiguration.getUserInfo().getPlainJiraCredentials().getBytes();
         String base64Creds = DatatypeConverter.printBase64Binary(plainCredsBytes);
-
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + base64Creds);
 
@@ -38,6 +37,5 @@ public class JiraService {
         } catch (Exception e) {
             System.out.println("Exception " + e.getMessage() + " for " +jiraIssue);
         }
-
     }
 }

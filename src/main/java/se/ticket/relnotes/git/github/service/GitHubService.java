@@ -55,7 +55,9 @@ public class GitHubService {
                 CommitPage[] body = response.getBody();
                 List<CommitPage> commitPages = Arrays.asList(body);
                 for (CommitPage commitPage : commitPages) {
-                    allCommits.add(commitPage.getCommit());
+                    Commit commit = commitPage.getCommit();
+                    commit.setRepository(repository);
+                    allCommits.add(commit);
                 }
             }
         }
